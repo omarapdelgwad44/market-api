@@ -23,7 +23,7 @@ namespace market_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            var items = await _db.Items.OrderBy(I => I.Name).ToListAsync();
+            var items = await _db.Items.Select(I=>I).Where(I=>!I.isDeleted).OrderBy(I => I.Name).ToListAsync();
             return Ok(items);
         }
 
@@ -89,7 +89,7 @@ namespace market_api.Controllers
             {
                 return NotFound($"No item with ID {id}");
             }
-            _db.Items.Remove(item);
+            item.isDeleted = true;
             _db.SaveChanges();
             return Ok(item);
         }

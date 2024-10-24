@@ -12,6 +12,6 @@ public class Item
 
     public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
 
-
+    public bool isDeleted {  get; set; }=false;
     // Navigation property for the many-to-many relationship
 }

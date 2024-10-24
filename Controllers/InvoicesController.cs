@@ -17,13 +17,13 @@ namespace market_api.Controllers
         }
 
         // [HttpGet]: Get invoice details by id
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetInvoice(int id)
+        [HttpGet("GetInvoice{InvoiceId}")]
+        public async Task<IActionResult> GetInvoice(int InvoiceId)
         {
             var invoice = await _context.Invoices
                 .Include(i => i.InvoiceItems)
                 .ThenInclude(ii => ii.Item) // Include the Item details
-                .FirstOrDefaultAsync(i => i.Id == id);
+                .FirstOrDefaultAsync(i => i.Id == InvoiceId);
 
             if (invoice == null)
             {
@@ -33,6 +33,7 @@ namespace market_api.Controllers
             // Mapping to DTO (you can create a more detailed DTO if needed)
             var invoiceDto = new InvoiceDto
             {
+                Id = InvoiceId,
                 Description = invoice.Description,
                 TotalPrice = (decimal)invoice.TotalPrice,
                 Date = invoice.date,
@@ -49,8 +50,81 @@ namespace market_api.Controllers
             return Ok(invoiceDto);
         }
 
+
+        [HttpGet("GetAllInvoices")]
+        public async Task<IActionResult> GetAllInvoices()
+        {
+            
+            // Fetch all invoices related to the ItemId
+            var invoices = await _context.InvoiceItems
+                .Select(x => x.Invoice)
+                .ToListAsync();
+
+            if (invoices.Count == 0)
+            {
+                return NotFound($"No invoices found.");
+            }
+
+            // Prepare a list to hold the invoice DTOs
+            var invoiceDtos = new List<InvoiceDto>();
+
+            // Loop through the invoices and call GetInvoice for each one
+            foreach (var invoice in invoices)
+            {
+                var result = await GetInvoice(invoice.Id);
+
+                if (result is OkObjectResult okResult && okResult.Value is InvoiceDto invoiceDto)
+                {
+                    invoiceDtos.Add(invoiceDto); // Add the DTO to the list
+                }
+            }
+
+            // Return the list of invoice DTOs
+            return Ok(invoiceDtos);
+        }
+
+        [HttpGet("ContainsItem{ItemId}")]
+
+        public async Task<IActionResult> GetInvoicesWithItem(int ItemId)
+        {
+            var item = await _context.Items.FindAsync(ItemId);
+            if (item == null)
+            {
+                return BadRequest($"Item with ID {ItemId} not found.");
+            }
+
+            // Fetch all invoices related to the ItemId
+            var invoices = await _context.InvoiceItems
+                .Where(x => x.ItemId == ItemId)
+                .Select(x => x.Invoice)
+                .ToListAsync();
+
+            if (invoices.Count == 0)
+            {
+                return NotFound($"No invoices found for the item with ID {ItemId}.");
+            }
+
+            // Prepare a list to hold the invoice DTOs
+            var invoiceDtos = new List<InvoiceDto>();
+
+            // Loop through the invoices and call GetInvoice for each one
+            foreach (var invoice in invoices)
+            {
+                var result = await GetInvoice(invoice.Id);
+
+                if (result is OkObjectResult okResult && okResult.Value is InvoiceDto invoiceDto)
+                {
+                    invoiceDtos.Add(invoiceDto); // Add the DTO to the list
+                }
+            }
+
+            // Return the list of invoice DTOs
+            return Ok(invoiceDtos);
+        }
+
+
         // [HttpPost]: Create a new invoice with one or more items
-        [HttpPost]
+        [HttpPost("CreateInvoice")]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceDto createInvoiceDto)
         {
             if (!ModelState.IsValid)
@@ -107,6 +181,19 @@ namespace market_api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(invoice.Id);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int InvoiceId)
+        {
+            var Invoice = await _context.Invoices.FindAsync(InvoiceId);
+            if (Invoice == null)
+            {
+                return NotFound($"No item with ID {InvoiceId}");
+            }
+            _context.Invoices.Remove(Invoice);
+            _context.SaveChanges();
+            return Ok(Invoice);
         }
     }
 }
