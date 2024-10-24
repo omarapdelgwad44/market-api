@@ -7,6 +7,7 @@ namespace market_api.models
         public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options)
         {
         }
+        public DbSet<User> Users { get; set; }
 
         public DbSet<Item> Items { get; set; }
 
