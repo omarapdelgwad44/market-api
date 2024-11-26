@@ -2,16 +2,16 @@
 # **Market API**
 
 ## **Introduction**
-The Market API provides essential features for managing product inventories, orders, and sales. It's a backend solution designed to streamline e-commerce workflows, track inventory levels, and handle customer transactions efficiently.
+The Market API is a robust backend solution for managing product inventories, customer orders, and sales processes. Designed for e-commerce platforms, it helps streamline workflows, track inventory, and handle transactions efficiently.
 
 ---
 
 ## **Features**
-- **Product Management**: Add, update, delete, and retrieve product details.
-- **Order Handling**: Process customer orders and maintain transaction records.
-- **Inventory Tracking**: Automatically adjust inventory levels based on sales.
-- **Secure Authentication**: Role-based access control using JWT.
-- **Search and Filter**: Advanced filtering options for quick data retrieval.
+- **Product Management**: Create, update, delete, and retrieve product details.
+- **Order Handling**: Process customer orders with detailed transaction records.
+- **Inventory Tracking**: Automatically adjust stock levels based on sales.
+- **Secure Authentication**: Role-based access control with JWT authentication.
+- **Search and Filter**: Powerful filtering options for efficient data retrieval.
 
 ---
 
@@ -20,7 +20,7 @@ The Market API provides essential features for managing product inventories, ord
 - **Database**: SQL Server
 - **ORM**: Entity Framework Core (EF Core)
 - **Authentication**: JWT (JSON Web Token)
-- **Testing**: Postman or Swagger for endpoint validation
+- **Testing Tools**: Postman and Swagger for endpoint validation
 
 ---
 
@@ -28,7 +28,7 @@ The Market API provides essential features for managing product inventories, ord
 ### **Prerequisites**
 - .NET SDK (6.0 or later)
 - SQL Server installed and running
-- Postman (optional) for testing
+- Postman (optional) for API testing
 
 ### **Steps**
 1. Clone the repository:
@@ -45,7 +45,7 @@ The Market API provides essential features for managing product inventories, ord
    ```
 4. Configure the database connection:
    - Open `appsettings.json`.
-   - Update the connection string in `"ConnectionStrings": { "DefaultConnection": "<your_connection_string>" }`.
+   - Update the connection string under `"ConnectionStrings": { "DefaultConnection": "<your_connection_string>" }`.
 
 5. Run migrations to initialize the database:
    ```bash
@@ -55,7 +55,9 @@ The Market API provides essential features for managing product inventories, ord
    ```bash
    dotnet run
    ```
-   The API will be available at `https://localhost:5001` or `http://localhost:5000`.
+   The API will be available at:
+   - `https://localhost:5001` (HTTPS)
+   - `http://localhost:5000` (HTTP)
 
 ---
 
@@ -66,33 +68,36 @@ The Market API provides essential features for managing product inventories, ord
 ### **Endpoints**
 
 #### **Products**
-| Endpoint            | Method | Description            | Auth Required |
-|---------------------|--------|------------------------|---------------|
-| `/products`         | GET    | Retrieve all products  | No            |
-| `/products/{id}`    | GET    | Get a product by ID    | No            |
-| `/products`         | POST   | Add a new product      | Yes           |
-| `/products/{id}`    | PUT    | Update a product by ID | Yes           |
-| `/products/{id}`    | DELETE | Delete a product by ID | Yes           |
+| Endpoint            | Method | Description             | Auth Required |
+|---------------------|--------|-------------------------|---------------|
+| `/products`         | GET    | Retrieve all products   | No            |
+| `/products/{id}`    | GET    | Retrieve a product by ID| No            |
+| `/products`         | POST   | Add a new product       | Yes           |
+| `/products/{id}`    | PUT    | Update a product by ID  | Yes           |
+| `/products/{id}`    | DELETE | Delete a product by ID  | Yes           |
 
 #### **Orders**
-| Endpoint            | Method | Description            | Auth Required |
-|---------------------|--------|------------------------|---------------|
-| `/orders`           | GET    | Retrieve all orders    | Yes           |
-| `/orders/{id}`      | GET    | Get an order by ID     | Yes           |
-| `/orders`           | POST   | Create a new order     | Yes           |
+| Endpoint            | Method | Description             | Auth Required |
+|---------------------|--------|-------------------------|---------------|
+| `/orders`           | GET    | Retrieve all orders     | Yes           |
+| `/orders/{id}`      | GET    | Retrieve an order by ID | Yes           |
+| `/orders`           | POST   | Create a new order      | Yes           |
 
 #### **Authentication**
-| Endpoint            | Method | Description               |
-|---------------------|--------|---------------------------|
-| `/auth/register`    | POST   | Register a new user       |
+| Endpoint            | Method | Description             |
+|---------------------|--------|-------------------------|
+| `/auth/register`    | POST   | Register a new user     |
 | `/auth/login`       | POST   | Log in and get a JWT token|
 
-### **Example Request**
-#### **Retrieve Products**
+---
+
+### **Example Requests**
+#### **Retrieve All Products**
 ```http
 GET /api/products
 Authorization: Bearer <your-token>
 ```
+
 #### **Sample Response**
 ```json
 [
@@ -111,11 +116,78 @@ Authorization: Bearer <your-token>
 ]
 ```
 
+#### **Create a Product**
+```http
+POST /api/products
+Authorization: Bearer <your-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "New Product",
+  "price": 150.00,
+  "stock": 20
+}
+```
+
+**Response:**
+```json
+{
+  "id": 3,
+  "name": "New Product",
+  "price": 150.00,
+  "stock": 20
+}
+```
+
 ---
 
-## **Usage**
-1. Use the included [Postman collection](#) for pre-configured requests.
-2. Integrate the API into your project by following the provided examples.
+## **Error Handling**
+| Status Code | Description                |
+|-------------|----------------------------|
+| 400         | Bad Request                |
+| 401         | Unauthorized (invalid JWT) |
+| 404         | Resource Not Found         |
+| 500         | Internal Server Error      |
+
+---
+
+## **Testing**
+1. Import the [Postman collection](#) (link to be provided) for pre-configured API requests.
+2. Alternatively, use the built-in Swagger documentation available at `/swagger` once the application is running.
+
+---
+
+## **Deployment**
+### **Docker (Optional)**
+You can containerize the application for deployment. Here’s an example `Dockerfile`:
+```dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+COPY . .
+RUN dotnet publish -c Release -o out
+EXPOSE 5000
+ENTRYPOINT ["dotnet", "out/MarketAPI.dll"]
+```
+
+Run the following commands to build and run the container:
+```bash
+docker build -t market-api .
+docker run -p 5000:5000 market-api
+```
+
+### **Live Demo**
+Consider hosting the API on [Render](https://render.com/), [Heroku](https://www.heroku.com/), or [Azure](https://azure.microsoft.com/).
+
+---
+
+## **Architecture Overview**
+![Architecture Diagram](#) *(Replace with an actual image link)*  
+- **Client**: Communicates with the API via HTTP requests.
+- **Server**: ASP.NET Core handles logic and data processing.
+- **Database**: SQL Server stores data.
 
 ---
 
@@ -128,3 +200,9 @@ Authorization: Bearer <your-token>
 
 ## **License**
 This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
+
+## **Badges**
+![Build](https://img.shields.io/badge/build-passing-brightgreen)  
+![License](https://img.shields.io/badge/license-MIT-blue)
