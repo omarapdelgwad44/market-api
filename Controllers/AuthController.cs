@@ -1,6 +1,5 @@
 ﻿using market_api.Controllers;
 using market_api.models;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
